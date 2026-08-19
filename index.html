@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" data-scene="day">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Zima is a growth partner pairing performance marketing, brand systems and applied AI."
+    />
+    <title>Zima* — Growth partner</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Social cards. Swap the absolute URL for the real domain once deployed. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Zima* — Growth partner" />
+    <meta
+      property="og:description"
+      content="Performance marketing, brand systems and applied AI for founders who refuse to blend in."
+    />
+    <meta property="og:image" content="/hero-day.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Instrument+Serif:ital@1&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Both plates up front so the day/night swap never stalls on a download. -->
+    <link rel="preload" as="image" href="/hero-day.jpg" />
+    <link rel="preload" as="image" href="/hero-night.jpg" />
+
+    <script>
+      // Restore the saved scene before first paint so night never flashes day.
+      try {
+        var saved = localStorage.getItem('zima-scene')
+        if (saved === 'night') document.documentElement.dataset.scene = 'night'
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
