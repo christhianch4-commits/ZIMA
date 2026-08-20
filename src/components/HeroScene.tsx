@@ -18,6 +18,10 @@ import type { Scene } from '../useScene'
 
 const FADE_MS = 1600
 
+// Half speed. The takes are 10 s of real time, so the loop comes round every
+// 20 s instead — and the slower the drift, the less the seam registers at all.
+const PLAYBACK_RATE = 0.5
+
 interface Layer {
   scene: Scene
   video: string
@@ -77,21 +81,50 @@ export default function HeroScene({ scene }: { scene: Scene }) {
   useEffect(() => {
     if (reducedMotion) return
 
-    const timers: number[] = []
+    const cleanups: Array<() => void> = []
+    const outgoing = LAYERS.find((layer) => layer.scene !== scene)
+    const outgoingEl = outgoing ? videoRefs.current[outgoing.scene] : null
 
     for (const layer of LAYERS) {
       const video = videoRefs.current[layer.scene]
       if (!video) continue
 
-      if (layer.scene === scene) {
+      video.playbackRate = PLAYBACK_RATE
+
+      if (layer.scene !== scene) {
+        const timer = window.setTimeout(() => video.pause(), FADE_MS + 120)
+        cleanups.push(() => window.clearTimeout(timer))
+        continue
+      }
+
+      // Both takes frame the same clifftop from the same locked-off camera, so
+      // line the incoming one up with the outgoing one. Otherwise the dissolve
+      // carries the clouds jumping to another position, and it reads as two
+      // clips rather than one place changing light. Read the position inside
+      // start(), so a deferred seek still lands on the current frame.
+      const start = () => {
+        if (outgoingEl && outgoingEl.readyState >= 2) {
+          try {
+            video.currentTime = outgoingEl.currentTime
+          } catch {
+            // Not seekable; it just starts wherever it is.
+          }
+        }
         void video.play().catch(() => {})
+      }
+
+      if (video.readyState >= 1) {
+        start()
       } else {
-        timers.push(window.setTimeout(() => video.pause(), FADE_MS + 120))
+        // The very first toggle can land before this take has its metadata,
+        // which is exactly when a mismatched dissolve would be noticed.
+        video.addEventListener('loadedmetadata', start, { once: true })
+        cleanups.push(() => video.removeEventListener('loadedmetadata', start))
       }
     }
 
-    return () => timers.forEach(window.clearTimeout)
-  }, [scene, reducedMotion])
+    return () => cleanups.forEach((undo) => undo())
+  }, [scene, reducedMotion, warmed])
 
   return (
     <div ref={ref} className="absolute inset-0 overflow-hidden">
@@ -124,6 +157,7 @@ export default function HeroScene({ scene }: { scene: Scene }) {
                 <video
                   ref={(el) => {
                     videoRefs.current[layer.scene] = el
+                    if (el) el.playbackRate = PLAYBACK_RATE
                   }}
                   src={layer.video}
                   poster={layer.poster}

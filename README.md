@@ -23,7 +23,8 @@ Dos fotogramas del mismo acantilado, generados con Gemini y alineados entre si,
 que se funden con el interruptor del navbar.
 
 - `public/hero-day.mp4` / `hero-night.mp4` — los bucles ya procesados
-  (1924x988, 10 s, ~1.4 MB cada uno)
+  (1924x988, 240 fotogramas, ~1.4 MB cada uno). Se reproducen a `playbackRate`
+  0.5, asi que el ciclo se percibe de 20 s
 - `public/hero-day.jpg` / `hero-night.jpg` — los fotogramas fijos: hacen de
   `poster` mientras el video carga, y sustituyen al video por completo si el
   visitante pidio menos animacion
@@ -37,18 +38,27 @@ Los `.mp4` publicados ya vienen recortados y comprimidos. Si regeneras los
 originales, vuelve a pasarlos por esto (necesita `brew install ffmpeg`):
 
 ```bash
+N=$(ffprobe -v error -select_streams v:0 -count_frames \
+      -show_entries stream=nb_read_frames -of csv=p=0 assets-src/ORIGINAL-day.mp4)
+
 ffmpeg -y -i assets-src/ORIGINAL-day.mp4 \
-  -filter_complex "[0:v]crop=iw:trunc(ih*0.92/2)*2:0:0,split[a][b];[b]reverse[r];[a][r]concat=n=2:v=1[v]" \
+  -filter_complex "[0:v]crop=iw:trunc(ih*0.92/2)*2:0:0,split[a][b];\
+[b]reverse,trim=start_frame=1:end_frame=$((N-1)),setpts=PTS-STARTPTS[r];\
+[a][r]concat=n=2:v=1[v]" \
   -map "[v]" -an -c:v libx264 -crf 26 -preset slow -pix_fmt yuv420p \
   -movflags +faststart public/hero-day.mp4
 ```
 
 Que hace cada parte: `crop` se lleva el 8% inferior, donde el export estampa su
-logo. `reverse` + `concat` montan el bucle en palindromo, para que el reinicio
-no se vea. `-an` tira el audio, que va silenciado. `+faststart` mueve el indice
-al principio del archivo para que empiece a reproducir antes de descargarse
-entero. El nombre de salida **tiene que acabar en `.mp4`**: ffmpeg deduce el
-formato de la extension.
+logo. `reverse` + `concat` montan el bucle en palindromo. `-an` tira el audio,
+que va silenciado. `+faststart` mueve el indice al principio del archivo para
+que empiece a reproducir antes de descargarse entero. El nombre de salida
+**tiene que acabar en `.mp4`**: ffmpeg deduce el formato de la extension.
+
+El `trim` de la vuelta **no es opcional**. Sin el, la vuelta conserva su primer
+y ultimo fotograma, que son copias del ultimo de la ida y del primero del
+bucle. Son dos imagenes congeladas por ciclo, y a 24 fps se ven como un tiron.
+La comprobacion es contar fotogramas: el resultado debe tener `2N-2`, no `2N`.
 
 Para cambiar las imagenes basta con reemplazar esos dos archivos manteniendo el
 nombre. Si vienen de otra fuente, cuida que **el encuadre coincida**: la mujer,
@@ -62,6 +72,13 @@ peleen (`src/components/HeroScene.tsx`):
 | Exterior | Parallax al hacer scroll | ligado al scroll |
 | Media | Ken Burns, `scale(1.04)` → `scale(1.12)` | 44 s, ida y vuelta |
 | Interior | Cross-fade dia/noche | 1.6 s |
+
+Al cambiar de escena, el video entrante salta a la posicion exacta del
+saliente. Las dos tomas son el mismo acantilado con la camara fija, asi que si
+no se alinean el fundido arrastra las nubes de un sitio a otro y se lee como
+dos clips distintos en vez de un mismo lugar cambiando de luz. Si el entrante
+aun no tiene metadatos —el primer cambio puede pillarlo sin cargar— el salto
+queda pendiente de su evento `loadedmetadata`.
 
 Cada plancha lleva **su propio scrim**, porque la de dia es mucho mas brillante
 y se comeria el texto crema. La de dia ademas lleva un `contrast(1.08)` para
