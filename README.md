@@ -23,8 +23,7 @@ Dos fotogramas del mismo acantilado, generados con Gemini y alineados entre si,
 que se funden con el interruptor del navbar.
 
 - `public/hero-day.mp4` / `hero-night.mp4` — los bucles ya procesados
-  (1924x988, 240 fotogramas, ~1.4 MB cada uno). Se reproducen a `playbackRate`
-  0.5, asi que el ciclo se percibe de 20 s
+  (1924x988, 476 fotogramas, 24 fps, ciclo de 19.8 s, ~1.8 MB cada uno)
 - `public/hero-day.jpg` / `hero-night.jpg` — los fotogramas fijos: hacen de
   `poster` mientras el video carga, y sustituyen al video por completo si el
   visitante pidio menos animacion
@@ -60,18 +59,42 @@ y ultimo fotograma, que son copias del ultimo de la ida y del primero del
 bucle. Son dos imagenes congeladas por ciclo, y a 24 fps se ven como un tiron.
 La comprobacion es contar fotogramas: el resultado debe tener `2N-2`, no `2N`.
 
+La camara lenta va **antes**, en un paso aparte, y con interpolacion:
+
+```bash
+ffmpeg -y -i assets-src/ORIGINAL-day.mp4 -filter_complex \
+  "[0:v]crop=iw:trunc(ih*0.92/2)*2:0:0,setpts=2*PTS,\
+minterpolate=fps=24:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1[v]" \
+  -map "[v]" -an -c:v libx264 -crf 20 -preset medium slow-day.mp4
+```
+
+`setpts=2*PTS` reparte el clip en el doble de tiempo, y `minterpolate` **inventa
+los fotogramas que faltan** para llegar a 24 fps reales. Sin ese segundo filtro
+tendrias 12 fps con cada imagen repetida, que es lo que se percibe como falta de
+fluidez. El paso del palindromo va despues, sobre este archivo, y el `crf 20`
+de aqui es a proposito: es intermedio y no conviene comprimirlo dos veces.
+
+El de dia sale a `crf 28` y el de noche a `crf 26`. El plano diurno es luminoso
+y con mucho detalle, asi que aguanta mas compresion; el nocturno tiene
+degradados oscuros, que son los primeros en mostrar bandas si les quitas bits.
+
 Para cambiar las imagenes basta con reemplazar esos dos archivos manteniendo el
 nombre. Si vienen de otra fuente, cuida que **el encuadre coincida**: la mujer,
 el poste y la cabana deben caer en las mismas coordenadas, o el fundido se nota.
 
-Tres movimientos, cada uno en su propio elemento para que sus transforms no se
-peleen (`src/components/HeroScene.tsx`):
+Dos movimientos en elementos separados (`src/components/HeroScene.tsx`):
+parallax ligado al scroll por fuera, y el cross-fade dia/noche de 1.6 s por
+dentro.
 
-| Capa | Efecto | Duracion |
-| --- | --- | --- |
-| Exterior | Parallax al hacer scroll | ligado al scroll |
-| Media | Ken Burns, `scale(1.04)` → `scale(1.12)` | 44 s, ida y vuelta |
-| Interior | Cross-fade dia/noche | 1.6 s |
+Hubo un tercero, un Ken Burns en CSS, y esta retirado a proposito. Existia
+cuando el hero era una imagen fija; con video encima escalaba de forma continua
+una capa de 1924 px, que hay que resamplear en cada fotograma, y competia con
+el movimiento que ya trae el propio plano.
+
+Por el mismo motivo el grano del hero **no usa `mix-blend-mode`**. Mezclar a
+pantalla completa sobre un video en marcha obliga al navegador a releer el
+fondo en cada fotograma y saca al video de la ruta rapida de composicion del
+sistema. Se nota sobre todo en equipos sin motor de video dedicado.
 
 Al cambiar de escena, el video entrante salta a la posicion exacta del
 saliente. Las dos tomas son el mismo acantilado con la camara fija, asi que si

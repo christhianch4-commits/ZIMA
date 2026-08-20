@@ -19,20 +19,8 @@ body {
   overflow-x: hidden;
 }
 
-/* A slow breath on the hero plate so the frame is never fully still. */
-@keyframes zKenBurns {
-  from { transform: scale(1.04); }
-  to { transform: scale(1.12); }
-}
-
-.zKenBurns {
-  animation: zKenBurns 44s ease-in-out infinite alternate;
-  will-change: transform;
-}
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .zKenBurns { animation: none; transform: scale(1.04); }
 }
 
 /* Grain used as an overlay on top of the hero plate. */

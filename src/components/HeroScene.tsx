@@ -18,9 +18,10 @@ import type { Scene } from '../useScene'
 
 const FADE_MS = 1600
 
-// Half speed. The takes are 10 s of real time, so the loop comes round every
-// 20 s instead — and the slower the drift, the less the seam registers at all.
-const PLAYBACK_RATE = 0.5
+// The takes are already slowed and interpolated to a real 24 fps on disk, so
+// they play at their own speed. Dropping playbackRate below 1 would only hold
+// each frame twice and hand back the judder that was just encoded out.
+const PLAYBACK_RATE = 1
 
 interface Layer {
   scene: Scene
@@ -132,7 +133,7 @@ export default function HeroScene({ scene }: { scene: Scene }) {
         style={{ y }}
         className="absolute -top-[8%] left-0 h-[116%] w-full will-change-transform"
       >
-        <div className="zKenBurns absolute inset-0">
+        <div className="absolute inset-0">
           {LAYERS.map((layer) => (
             <div
               key={layer.scene}

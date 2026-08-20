@@ -26,8 +26,9 @@ export default function Hero({ scene, onToggleScene }: HeroProps) {
       <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black md:rounded-[2rem]">
         <HeroScene scene={scene} />
 
-        {/* Grain */}
-        <div className="noise-overlay pointer-events-none absolute inset-0 opacity-[0.55] mix-blend-overlay" />
+        {/* Grain. No blend mode: mixing over a playing video costs a full
+            backdrop read every frame, and the hero loses the fast path. */}
+        <div className="noise-overlay pointer-events-none absolute inset-0 opacity-[0.22]" />
 
         {/* Navbar — a black pill hanging from the top edge */}
         <nav className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
