@@ -3,15 +3,10 @@ import { ArrowRight } from 'lucide-react'
 import WordsPullUp from './WordsPullUp'
 import HeroScene from './HeroScene'
 import SceneToggle from './SceneToggle'
+import LangToggle from './LangToggle'
+import { useCopy } from '../i18n'
+import { track } from '../analytics'
 import type { Scene } from '../useScene'
-
-const NAV_ITEMS = [
-  { label: 'Studio', href: '#about' },
-  { label: 'Services', href: '#services' },
-  { label: 'Build', href: '#services' },
-  { label: 'Grow', href: '#services' },
-  { label: 'Contact', href: '#contact' },
-]
 
 const EASE = [0.16, 1, 0.3, 1] as const
 
@@ -21,6 +16,8 @@ interface HeroProps {
 }
 
 export default function Hero({ scene, onToggleScene }: HeroProps) {
+  const copy = useCopy()
+
   return (
     <section className="h-screen w-full p-4 md:p-6">
       <div className="relative h-full w-full overflow-hidden rounded-2xl bg-black md:rounded-[2rem]">
@@ -34,8 +31,11 @@ export default function Hero({ scene, onToggleScene }: HeroProps) {
         <nav className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
           <div className="flex items-center gap-3 rounded-b-2xl bg-black px-4 py-2 sm:gap-5 md:gap-8 md:rounded-b-3xl md:px-8">
             <ul className="flex items-center gap-3 text-[10px] sm:gap-6 sm:text-xs md:gap-12 md:text-sm lg:gap-14">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.label}>
+              {copy.nav.map((item) => (
+                <li
+                  key={item.label}
+                  className={item.secondary ? 'hidden md:list-item' : undefined}
+                >
                   <a
                     href={item.href}
                     className="whitespace-nowrap transition-colors duration-300"
@@ -53,6 +53,7 @@ export default function Hero({ scene, onToggleScene }: HeroProps) {
               ))}
             </ul>
             <span className="h-4 w-px shrink-0 bg-primary/20" aria-hidden="true" />
+            <LangToggle />
             <SceneToggle scene={scene} onToggle={onToggleScene} />
           </div>
         </nav>
@@ -77,19 +78,18 @@ export default function Hero({ scene, onToggleScene }: HeroProps) {
                 className="max-w-md text-xs text-primary/70 sm:text-sm md:text-base"
                 style={{ lineHeight: 1.2 }}
               >
-                Zima is a growth partner for companies that refuse to blend in. We
-                build the sites, apps and dashboards, run the marketing that sells,
-                and wire AI into how your team already works.
+                {copy.hero.paragraph}
               </motion.p>
 
               <motion.a
                 href="#contact"
+                onClick={() => track('cta_click', { place: 'hero' })}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.9, delay: 0.7, ease: EASE }}
                 className="group flex items-center gap-2 rounded-full bg-primary py-1.5 pl-6 pr-1.5 text-sm font-medium text-black transition-all duration-300 hover:gap-3 sm:text-base"
               >
-                Book a call
+                {copy.hero.cta}
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-black transition-transform duration-300 group-hover:scale-110 sm:h-10 sm:w-10">
                   <ArrowRight className="h-4 w-4" style={{ color: '#E1E0CC' }} />
                 </span>

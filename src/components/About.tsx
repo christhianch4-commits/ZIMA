@@ -1,13 +1,8 @@
 import { Fragment, useRef } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import WordsPullUpMultiStyle from './WordsPullUpMultiStyle'
+import { useCopy } from '../i18n'
 
-/** Swap these for the real company line and the section rewrites itself. */
-const FOUNDER_NAME = 'Yerika Rodriguez'
-const COMPANY_ROLE = 'a growth partner.'
-
-const BODY_TEXT =
-  `Founded by ${FOUNDER_NAME}, we work as an extension of your team rather than a vendor kept at arm's length. Strategy, design, engineering and paid growth sit in the same room, so the site, the app, the dashboards and the campaigns are built to feed each other instead of competing for the same budget.`
 
 interface AnimatedLetterProps {
   char: string
@@ -29,6 +24,8 @@ function AnimatedLetter({ char, index, total, progress }: AnimatedLetterProps) {
 }
 
 export default function About() {
+  const copy = useCopy()
+  const BODY_TEXT = copy.about.body
   const paragraphRef = useRef<HTMLParagraphElement>(null)
   const { scrollYProgress } = useScroll({
     target: paragraphRef,
@@ -45,7 +42,7 @@ export default function About() {
     <section id="about" className="bg-black px-4 py-16 sm:px-6 sm:py-20 md:py-24">
       <div className="relative mx-auto max-w-6xl rounded-2xl bg-[#101010] px-5 py-16 text-center sm:px-10 sm:py-20 md:rounded-[2rem] md:px-16 md:py-28">
         <p className="mb-6 text-[10px] text-primary sm:mb-8 sm:text-xs">
-          Growth partner
+          {copy.about.label}
         </p>
 
         <WordsPullUpMultiStyle
@@ -53,13 +50,13 @@ export default function About() {
           className="mx-auto max-w-3xl text-3xl leading-[0.95] sm:text-4xl sm:leading-[0.9] md:text-5xl lg:text-6xl xl:text-7xl"
           justify="center"
           segments={[
-            { text: 'We are Zima,', className: 'font-normal' },
+            { text: copy.about.headOne, className: 'font-normal' },
             {
-              text: COMPANY_ROLE,
+              text: copy.about.headRole,
               className: 'font-serif italic font-normal',
             },
             {
-              text: 'We design, build and scale the digital side of your business.',
+              text: copy.about.headTwo,
               className: 'font-normal',
             },
           ]}

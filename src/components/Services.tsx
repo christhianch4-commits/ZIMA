@@ -4,6 +4,7 @@ import { Check, Layers, Route, Sparkles, TrendingUp, type LucideIcon } from 'luc
 import WordsPullUpMultiStyle from './WordsPullUpMultiStyle'
 import PillarDiagram from './PillarDiagram'
 import { useReducedMotion } from '../useReducedMotion'
+import { useCopy } from '../i18n'
 
 /**
  * The four pillars, strung along a power line.
@@ -14,69 +15,13 @@ import { useReducedMotion } from '../useReducedMotion'
  * are one connected system, not four services sold separately.
  */
 
-interface Pillar {
-  id: string
-  number: string
-  title: string
-  tagline: string
-  services: string[]
-  Icon: LucideIcon
+/** Text lives in copy.ts; only the mark for each pillar stays here. */
+const ICONS: Record<string, LucideIcon> = {
+  build: Layers,
+  grow: TrendingUp,
+  automate: Sparkles,
+  operate: Route,
 }
-
-const PILLARS: Pillar[] = [
-  {
-    id: 'build',
-    number: '01',
-    title: 'Build',
-    tagline: 'Everything the business runs on, built properly.',
-    services: [
-      'Websites that load fast and actually convert',
-      'Web and mobile apps, brief to store',
-      'Dashboards that answer the question you really asked',
-      'Custom digital solutions when nothing off the shelf fits',
-    ],
-    Icon: Layers,
-  },
-  {
-    id: 'grow',
-    number: '02',
-    title: 'Grow',
-    tagline: 'Marketing that answers to revenue, not to vanity metrics.',
-    services: [
-      'Performance marketing across every paid channel',
-      'Social growth with a content engine behind it',
-      'Sales-focused funnels and lifecycle flows',
-      'Creative testing loops that never stall',
-    ],
-    Icon: TrendingUp,
-  },
-  {
-    id: 'automate',
-    number: '03',
-    title: 'Automate',
-    tagline: 'AI wired into how your team already works.',
-    services: [
-      'AI implementation across your existing stack',
-      'Agents that absorb the repetitive work',
-      'Research and reporting that took days, in minutes',
-      'Tooling your team will actually adopt',
-    ],
-    Icon: Sparkles,
-  },
-  {
-    id: 'operate',
-    number: '04',
-    title: 'Operate',
-    tagline: 'The discipline that keeps all of it shipping.',
-    services: [
-      'Project management from kickoff to handover',
-      'Team training and enablement',
-      'Process and methodology optimisation',
-      'Full project development, brief to launch',
-    ],
-    Icon: Route,
-  },
-]
 
 // Node centres as a fraction of the width: the middle of each of four columns.
 const NODES = [0.125, 0.375, 0.625, 0.875]
@@ -84,6 +29,8 @@ const AUTO_ADVANCE_MS = 5500
 const EASE = [0.22, 1, 0.36, 1] as const
 
 export default function Services() {
+  const copy = useCopy()
+  const pillars = copy.services.pillars
   const [active, setActive] = useState(0)
   const [userTook, setUserTook] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -95,11 +42,11 @@ export default function Services() {
   useEffect(() => {
     if (userTook || !inView || reducedMotion) return
     const timer = window.setInterval(
-      () => setActive((current) => (current + 1) % PILLARS.length),
+      () => setActive((current) => (current + 1) % pillars.length),
       AUTO_ADVANCE_MS,
     )
     return () => window.clearInterval(timer)
-  }, [userTook, inView, reducedMotion])
+  }, [userTook, inView, reducedMotion, pillars.length])
 
   const choose = useCallback((index: number) => {
     setUserTook(true)
@@ -112,15 +59,15 @@ export default function Services() {
         event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
       if (!delta) return
       event.preventDefault()
-      const next = (active + delta + PILLARS.length) % PILLARS.length
+      const next = (active + delta + pillars.length) % pillars.length
       choose(next)
       const tabs = ref.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
       tabs?.[next]?.focus()
     },
-    [active, choose],
+    [active, choose, pillars.length],
   )
 
-  const pillar = PILLARS[active]
+  const pillar = pillars[active]
 
   return (
     <section
@@ -130,19 +77,16 @@ export default function Services() {
       <div className="bg-noise pointer-events-none absolute inset-0 opacity-[0.15]" />
 
       <div ref={ref} className="relative z-10 mx-auto max-w-[1400px]">
-        <p className="mb-6 text-[10px] text-primary sm:text-xs">What we do</p>
+        <p className="mb-6 text-[10px] text-primary sm:text-xs">{copy.services.label}</p>
 
         <WordsPullUpMultiStyle
           as="h2"
           className="max-w-4xl text-xl font-normal leading-[1.15] sm:text-2xl md:text-3xl lg:text-4xl"
           justify="start"
           segments={[
+            { text: copy.services.headOne, className: 'text-[#E1E0CC]' },
             {
-              text: 'Four pillars, wired into one system.',
-              className: 'text-[#E1E0CC]',
-            },
-            {
-              text: 'Build it, grow it, automate it, run it.',
+              text: copy.services.headTwo,
               className: 'text-gray-500',
               newLine: true,
             },
@@ -209,11 +153,11 @@ export default function Services() {
 
           <div
             role="tablist"
-            aria-label="Service pillars"
+            aria-label={copy.services.ariaTabs}
             onKeyDown={onKeyDown}
             className="relative grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-2 sm:pt-14"
           >
-            {PILLARS.map((item, i) => {
+            {pillars.map((item, i) => {
               const on = i === active
               return (
                 <button
@@ -233,11 +177,16 @@ export default function Services() {
                       boxShadow: on ? '0 0 26px rgba(222,219,200,0.35)' : 'none',
                     }}
                   >
-                    <item.Icon
-                      className="h-4 w-4 transition-colors duration-500 sm:h-5 sm:w-5"
-                      style={{ color: on ? '#000000' : '#DEDBC8' }}
-                      strokeWidth={1.7}
-                    />
+                    {(() => {
+                      const Mark = ICONS[item.id]
+                      return (
+                        <Mark
+                          className="h-4 w-4 transition-colors duration-500 sm:h-5 sm:w-5"
+                          style={{ color: on ? '#000000' : '#DEDBC8' }}
+                          strokeWidth={1.7}
+                        />
+                      )
+                    })()}
                   </span>
                   <span
                     className="text-[10px] tabular-nums transition-colors duration-500 sm:text-xs"

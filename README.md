@@ -124,6 +124,9 @@ aproxima la escena — tambien es lo que se ve mientras descarga.
 | `src/components/About.tsx` | Titular mixto y parrafo que se revela con el scroll |
 | `src/components/Services.tsx` | Los cuatro pilares colgados del tendido electrico |
 | `src/components/PillarDiagram.tsx` | Un esquema animado por pilar |
+| `src/components/Process.tsx` | Los cuatro pasos, sobre un rail que se llena al scroll |
+| `src/components/Footer.tsx` | Pie con navegacion, correo y redes |
+| `src/components/LangToggle.tsx` | El conmutador EN / ES |
 | `src/components/Contact.tsx` | Banda de cierre con la curva y la llamada a la accion |
 | `src/components/GrowthPanel.tsx` | Dos trayectorias sobre el ruido, en formato apaisado |
 | `src/useReducedMotion.ts` | Detecta `prefers-reduced-motion` |
@@ -133,11 +136,48 @@ aproxima la escena — tambien es lo que se ve mientras descarga.
 Las utilidades `.noise-overlay` y `.bg-noise` estan en `src/index.css` y usan
 `feTurbulence` embebido como data URI, sin peticiones externas.
 
-## Textos que querras cambiar
+## Dos idiomas
 
-- `PROFILE_NAME` y `PROFILE_ROLE` en `About.tsx` — ahora mismo es un marcador.
-- `NAV_ITEMS` en `Hero.tsx`.
-- `PILLARS` en `Services.tsx` — los cuatro pilares y sus servicios.
+**Todo el texto vive en `src/copy.ts`**, en ingles y espanol. Los componentes
+no llevan cadenas: las piden con `useCopy()`. Anadir un tercer idioma es anadir
+una clave al nivel superior y nada mas.
+
+El idioma se detecta del navegador la primera vez, se guarda en `localStorage`
+y se refleja en `<html lang>`.
+
+**Limitacion conocida:** el cambio es en cliente, asi que un buscador solo
+indexa la version por defecto. Para SEO bilingue de verdad harian falta URLs
+separadas (`/es/`) con prerender y etiquetas `hreflang`. Se puede montar con
+`vite-plugin-ssr` o pasando el sitio a Astro, pero es otro proyecto.
+
+## Valores que querras cambiar
+
+- **`src/site.ts`** — el correo, el destino del formulario y las redes.
+- **`src/copy.ts`** — absolutamente todo el texto, en ambos idiomas.
+
+## El formulario
+
+Envia a `FORM_ENDPOINT` (`src/site.ts`). Sirve cualquier servicio que acepte un
+POST con JSON: Formspree, Web3Forms, o una funcion de Vercel.
+
+Si lo dejas vacio **el formulario sigue funcionando**: abre el cliente de
+correo del visitante con el asunto y el cuerpo ya rellenos. No es lo ideal en
+movil, pero nunca deja a alguien sin poder escribirte.
+
+## Analitica
+
+`src/analytics.ts` expone un solo `track()`, sin proveedor. No carga nada por
+si mismo, asi que hoy no hace nada. Para encenderlo con Plausible basta una
+etiqueta en `index.html`:
+
+```html
+<script defer data-domain="tudominio.com"
+        src="https://plausible.io/js/script.js"></script>
+```
+
+Detecta tambien `gtag` si prefieres Google Analytics. Ya estan instrumentados
+los clics de la llamada a la accion, el envio del formulario, el cambio de
+idioma y los enlaces de correo y redes.
 
 ## La seccion de servicios
 
