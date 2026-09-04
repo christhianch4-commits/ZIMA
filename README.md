@@ -145,15 +145,49 @@ una clave al nivel superior y nada mas.
 El idioma se detecta del navegador la primera vez, se guarda en `localStorage`
 y se refleja en `<html lang>`.
 
-**Limitacion conocida:** el cambio es en cliente, asi que un buscador solo
-indexa la version por defecto. Para SEO bilingue de verdad harian falta URLs
-separadas (`/es/`) con prerender y etiquetas `hreflang`. Se puede montar con
-`vite-plugin-ssr` o pasando el sitio a Astro, pero es otro proyecto.
+Cada idioma tiene **su propia URL y su propio HTML**: ingles en `/`, espanol en
+`/es/`. El conmutador navega entre las dos y conserva el ancla, asi que quien
+esta leyendo servicios sigue en servicios.
+
+El idioma sale **de la ruta**, no del navegador. Detectarlo de `navigator`
+haria que el primer render del cliente no coincidiera con el prerenderizado, y
+React tiraria el arbol entero para rehacerlo.
 
 ## Valores que querras cambiar
 
 - **`src/site.ts`** — el correo, el destino del formulario y las redes.
 - **`src/copy.ts`** — absolutamente todo el texto, en ambos idiomas.
+
+## Como se genera el HTML
+
+Un buscador solo puede posicionar una URL que exista. Una pagina que cambia su
+texto con JavaScript le ofrece **una sola URL y un solo idioma**, por buena que
+sea la traduccion. Por eso `npm run build` hace cuatro cosas:
+
+1. `vite build` — la aplicacion normal
+2. `vite build --ssr` — la misma aplicacion, empaquetada para Node
+3. `scripts/prerender.mjs` — la renderiza una vez por idioma y escribe
+   `dist/index.html` y `dist/es/index.html`, cada uno con su `<title>`, su
+   descripcion, su `canonical`, sus `hreflang` cruzados y datos estructurados
+   de `ProfessionalService` con `areaServed: Worldwide`
+4. Escribe `robots.txt` y `sitemap.xml` con las dos URLs
+
+`npm run build:spa` salta el prerender, util para depurar.
+
+**Antes de desplegar, cambia `SITE_URL` en `src/site.ts`.** De ahi salen todas
+las URLs absolutas; con el valor de ejemplo estarias mandando a los buscadores
+a un dominio que no es tuyo.
+
+### Hidratacion
+
+`main.tsx` usa `hydrateRoot` cuando encuentra marcado y `createRoot` cuando no
+(el servidor de desarrollo sirve el contenedor vacio).
+
+Para que la hidratacion no falle, **el primer render del cliente tiene que ser
+identico al del servidor**. Por eso `useScene` y `useReducedMotion` arrancan en
+su valor por defecto y leen `localStorage` o `matchMedia` en un efecto, ya
+hidratados. Si leyeran en el inicializador, alguien con el modo noche guardado
+generaria un arbol distinto al prerenderizado y React lo descartaria entero.
 
 ## El formulario
 

@@ -3,6 +3,14 @@
  * Everything else in the app reads from here.
  */
 
+/**
+ * The canonical origin, no trailing slash. Everything that has to be an
+ * absolute URL derives from this: hreflang, canonical, the social card image,
+ * robots.txt and the sitemap. Set it before deploying or the search engines
+ * get pointed at the placeholder.
+ */
+export const SITE_URL = 'https://zima.agency'
+
 /** Where the contact form and the mail links land. */
 export const EMAIL = 'hola@zima.agency'
 

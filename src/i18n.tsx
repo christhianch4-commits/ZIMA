@@ -10,17 +10,26 @@ import {
 import { COPY, type Copy, type Lang } from './copy'
 import { track } from './analytics'
 
-const STORAGE_KEY = 'zima-lang'
+/** Spanish lives under /es/. The path is the single source of truth. */
+export const ES_PREFIX = '/es'
 
+export function langFromPath(pathname: string): Lang {
+  return pathname === ES_PREFIX || pathname.startsWith(`${ES_PREFIX}/`) ? 'es' : 'en'
+}
+
+export function pathForLang(lang: Lang): string {
+  return lang === 'es' ? `${ES_PREFIX}/` : '/'
+}
+
+/**
+ * Reading the language off the URL rather than off the browser keeps the
+ * server and the client in agreement. Detecting it from `navigator` would make
+ * the prerendered markup and the hydrated markup disagree, and React would
+ * throw the whole tree away and rebuild it.
+ */
 function detect(): Lang {
-  try {
-    const saved = window.localStorage.getItem(STORAGE_KEY)
-    if (saved === 'en' || saved === 'es') return saved
-  } catch {
-    // Private browsing; fall through to the browser's own preference.
-  }
-  const preferred = typeof navigator !== 'undefined' ? navigator.language : 'en'
-  return preferred.toLowerCase().startsWith('es') ? 'es' : 'en'
+  if (typeof window === 'undefined') return 'en'
+  return langFromPath(window.location.pathname)
 }
 
 interface LangValue {
@@ -31,30 +40,32 @@ interface LangValue {
 
 const LangContext = createContext<LangValue | null>(null)
 
-export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>(detect)
+interface LangProviderProps {
+  children: ReactNode
+  /** Set by the prerender so each page is built in its own language. */
+  forced?: Lang
+}
+
+export function LangProvider({ children, forced }: LangProviderProps) {
+  const [lang, setLang] = useState<Lang>(() => forced ?? detect())
 
   useEffect(() => {
     document.documentElement.lang = lang
-    try {
-      window.localStorage.setItem(STORAGE_KEY, lang)
-    } catch {
-      // The choice just will not survive a reload.
-    }
   }, [lang])
 
+  // Switching language is a navigation, not a state change: that is what gives
+  // each language a real URL for search engines to index.
   const toggle = useCallback(() => {
-    setLang((current) => {
-      const next = current === 'en' ? 'es' : 'en'
-      track('language_switch', { to: next })
-      return next
-    })
-  }, [])
+    const next: Lang = lang === 'en' ? 'es' : 'en'
+    track('language_switch', { to: next })
+    if (typeof window !== 'undefined') {
+      window.location.assign(pathForLang(next) + window.location.hash)
+      return
+    }
+    setLang(next)
+  }, [lang])
 
-  const value = useMemo(
-    () => ({ lang, copy: COPY[lang], toggle }),
-    [lang, toggle],
-  )
+  const value = useMemo(() => ({ lang, copy: COPY[lang], toggle }), [lang, toggle])
 
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>
 }

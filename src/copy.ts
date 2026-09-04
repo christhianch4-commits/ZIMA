@@ -22,7 +22,13 @@ export interface Step {
 
 const en = {
   htmlLang: 'en',
+  ogLocale: 'en_US',
   langLabel: 'Cambiar a espanol',
+  meta: {
+    title: 'Zima* — Growth partner for companies that refuse to blend in',
+    description:
+      'Zima builds the websites, apps and dashboards, runs the marketing that sells, and wires AI into how your team already works. A growth partner working worldwide.',
+  },
   nav: [
     { label: 'Studio', href: '#about' },
     { label: 'Services', href: '#services' },
@@ -149,7 +155,13 @@ const en = {
 
 const es: typeof en = {
   htmlLang: 'es',
+  ogLocale: 'es_ES',
   langLabel: 'Switch to English',
+  meta: {
+    title: 'Zima* — Growth partner para empresas que no pasan desapercibidas',
+    description:
+      'Zima construye los sitios, las apps y los dashboards, mueve el marketing que vende, y conecta la IA a como tu equipo ya trabaja. Un growth partner que trabaja en todo el mundo.',
+  },
   nav: [
     { label: 'Estudio', href: '#about' },
     { label: 'Servicios', href: '#services' },
