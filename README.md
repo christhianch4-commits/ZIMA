@@ -123,6 +123,7 @@ aproxima la escena — tambien es lo que se ve mientras descarga.
 | `src/components/SceneToggle.tsx` | El interruptor sol / luna |
 | `src/components/About.tsx` | Titular mixto y parrafo que se revela con el scroll |
 | `src/components/Services.tsx` | Los cuatro pilares colgados del tendido electrico |
+| `src/components/PillarDiagram.tsx` | Un esquema animado por pilar |
 | `src/components/Contact.tsx` | Banda de cierre con la curva y la llamada a la accion |
 | `src/components/GrowthPanel.tsx` | Dos trayectorias sobre el ruido, en formato apaisado |
 | `src/useReducedMotion.ts` | Detecta `prefers-reduced-motion` |
@@ -157,5 +158,16 @@ sigue el estirado exacto.
 
 Los pilares son un `tablist` real: se navegan con flechas y anuncian cual esta
 seleccionado.
+
+Cada pilar trae su propio esquema dibujado, no una foto. El hero fija un mundo
+muy concreto y una imagen de banco al lado se lee como otra web pegada. Los
+esquemas muestran el mecanismo de cada pilar —una interfaz montandose, una
+senal expandiendose, trabajo cruzando un nucleo, fases corriendo a un plan— y
+se repiten cada vez que cambias de pilar, porque el componente va **keyed** por
+id.
+
+El flujo de Automate usa un **patron de guiones en movimiento**, no
+`offset-path`. Seria mas limpio con motion path, pero su soporte sobre SVG es
+irregular y ademas exige animar `offsetDistance`, no solo declarar la ruta.
 
 La unica dependencia externa que queda son las Google Fonts.

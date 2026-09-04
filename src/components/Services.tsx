@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useInView } from 'framer-motion'
 import { Check, Layers, Route, Sparkles, TrendingUp, type LucideIcon } from 'lucide-react'
 import WordsPullUpMultiStyle from './WordsPullUpMultiStyle'
+import PillarDiagram from './PillarDiagram'
 import { useReducedMotion } from '../useReducedMotion'
 
 /**
@@ -260,7 +261,7 @@ export default function Services() {
         <div
           id="pillar-panel"
           role="tabpanel"
-          className="mt-8 min-h-[280px] rounded-2xl bg-[#141414] p-6 sm:mt-10 sm:p-10 md:rounded-[2rem] md:p-14"
+          className="mt-8 min-h-[420px] rounded-2xl bg-[#141414] p-6 sm:mt-10 sm:p-10 md:rounded-[2rem] md:p-14"
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -271,14 +272,19 @@ export default function Services() {
               transition={{ duration: 0.45, ease: EASE }}
               className="grid gap-8 md:grid-cols-12 md:gap-12"
             >
-              <h3
-                className="md:col-span-5 text-xl font-normal leading-[1.15] sm:text-2xl md:text-3xl"
-                style={{ color: '#E1E0CC' }}
-              >
-                {pillar.tagline}
-              </h3>
+              <div className="md:col-span-5 flex flex-col gap-6">
+                <h3
+                  className="text-xl font-normal leading-[1.15] sm:text-2xl md:text-3xl"
+                  style={{ color: '#E1E0CC' }}
+                >
+                  {pillar.tagline}
+                </h3>
+                <div className="h-44 w-full sm:h-56 md:h-64">
+                  <PillarDiagram id={pillar.id} />
+                </div>
+              </div>
 
-              <ul className="md:col-span-7 grid gap-4 sm:grid-cols-2">
+              <ul className="md:col-span-7 grid content-start gap-4 sm:grid-cols-2">
                 {pillar.services.map((service, i) => (
                   <motion.li
                     key={service}
