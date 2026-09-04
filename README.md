@@ -122,8 +122,9 @@ aproxima la escena — tambien es lo que se ve mientras descarga.
 | `src/components/HeroScene.tsx` | Las dos planchas, parallax, Ken Burns y fundido |
 | `src/components/SceneToggle.tsx` | El interruptor sol / luna |
 | `src/components/About.tsx` | Titular mixto y parrafo que se revela con el scroll |
-| `src/components/Features.tsx` | Cabecera a dos lineas y parrilla de 4 tarjetas |
-| `src/components/GrowthPanel.tsx` | La primera tarjeta: dos trayectorias sobre el ruido |
+| `src/components/Services.tsx` | Los cuatro pilares colgados del tendido electrico |
+| `src/components/Contact.tsx` | Banda de cierre con la curva y la llamada a la accion |
+| `src/components/GrowthPanel.tsx` | Dos trayectorias sobre el ruido, en formato apaisado |
 | `src/useReducedMotion.ts` | Detecta `prefers-reduced-motion` |
 | `src/components/WordsPullUp.tsx` | Entrada palabra a palabra (con asterisco opcional) |
 | `src/components/WordsPullUpMultiStyle.tsx` | Igual, mezclando estilos por segmento |
@@ -135,6 +136,26 @@ Las utilidades `.noise-overlay` y `.bg-noise` estan en `src/index.css` y usan
 
 - `PROFILE_NAME` y `PROFILE_ROLE` en `About.tsx` — ahora mismo es un marcador.
 - `NAV_ITEMS` en `Hero.tsx`.
-- `FEATURES` en `Features.tsx`.
+- `PILLARS` en `Services.tsx` — los cuatro pilares y sus servicios.
+
+## La seccion de servicios
+
+Los cuatro pilares cuelgan de un cable, con los postes del hero como
+navegacion. El cable se enciende hasta el pilar activo, que es la forma de
+decir que los servicios son un sistema conectado y no cuatro cosas sueltas.
+
+La seccion se auto-avanza cada 5.5 s y **cede el control de forma definitiva**
+en cuanto alguien interactua. Tampoco corre si esta fuera de pantalla ni si el
+visitante pidio menos animacion.
+
+El tramo encendido se revela con un **rectangulo de recorte**, no con
+`strokeDasharray`. Con `pathLength` normalizado, `preserveAspectRatio="none"` y
+`vectorEffect="non-scaling-stroke"` a la vez, el patron de guiones se mide en
+pixeles de pantalla mientras `pathLength` normaliza en unidades del viewBox: no
+coinciden y el trazo se queda corto. El recorte se mide en espacio de usuario y
+sigue el estirado exacto.
+
+Los pilares son un `tablist` real: se navegan con flechas y anuncian cual esta
+seleccionado.
 
 La unica dependencia externa que queda son las Google Fonts.

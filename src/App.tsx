@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import Hero from './components/Hero'
 import About from './components/About'
-import Features from './components/Features'
+import Services from './components/Services'
+import Contact from './components/Contact'
 import { useScene } from './useScene'
 
 export default function App() {
@@ -19,7 +20,8 @@ export default function App() {
     <main className="min-h-screen w-full bg-black">
       <Hero scene={scene} onToggleScene={toggle} />
       <About />
-      <Features scene={scene} />
+      <Services />
+      <Contact scene={scene} />
     </main>
   )
 }

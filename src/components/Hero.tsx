@@ -6,11 +6,11 @@ import SceneToggle from './SceneToggle'
 import type { Scene } from '../useScene'
 
 const NAV_ITEMS = [
-  { label: 'Approach', href: '#about' },
-  { label: 'Services', href: '#features' },
-  { label: 'Work', href: '#features' },
-  { label: 'Writing', href: '#features' },
-  { label: 'Contact', href: '#features' },
+  { label: 'Studio', href: '#about' },
+  { label: 'Services', href: '#services' },
+  { label: 'Build', href: '#services' },
+  { label: 'Grow', href: '#services' },
+  { label: 'Contact', href: '#contact' },
 ]
 
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -77,13 +77,13 @@ export default function Hero({ scene, onToggleScene }: HeroProps) {
                 className="max-w-md text-xs text-primary/70 sm:text-sm md:text-base"
                 style={{ lineHeight: 1.2 }}
               >
-                Zima is a growth partner for founders who refuse to blend in, pairing
-                performance marketing, brand systems and applied AI to turn borrowed
-                attention into revenue that compounds.
+                Zima is a growth partner for companies that refuse to blend in. We
+                build the sites, apps and dashboards, run the marketing that sells,
+                and wire AI into how your team already works.
               </motion.p>
 
               <motion.a
-                href="#features"
+                href="#contact"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.9, delay: 0.7, ease: EASE }}

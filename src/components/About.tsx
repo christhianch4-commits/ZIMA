@@ -2,12 +2,12 @@ import { Fragment, useRef } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion'
 import WordsPullUpMultiStyle from './WordsPullUpMultiStyle'
 
-/** Swap these two for the real person and the section rewrites itself. */
-const PROFILE_NAME = 'Yerika Rodriguez'
-const PROFILE_ROLE = 'a growth partner.'
+/** Swap these for the real company line and the section rewrites itself. */
+const FOUNDER_NAME = 'Yerika Rodriguez'
+const COMPANY_ROLE = 'a growth partner.'
 
 const BODY_TEXT =
-  'Over the last seven years I have taken brands from their first paid euro to category leaders, running acquisition, lifecycle and creative as one loop instead of three departments. Today I embed with founding teams, wire the data, and hand back a system that keeps compounding long after I leave.'
+  `Founded by ${FOUNDER_NAME}, we work as an extension of your team rather than a vendor kept at arm's length. Strategy, design, engineering and paid growth sit in the same room, so the site, the app, the dashboards and the campaigns are built to feed each other instead of competing for the same budget.`
 
 interface AnimatedLetterProps {
   char: string
@@ -53,13 +53,13 @@ export default function About() {
           className="mx-auto max-w-3xl text-3xl leading-[0.95] sm:text-4xl sm:leading-[0.9] md:text-5xl lg:text-6xl xl:text-7xl"
           justify="center"
           segments={[
-            { text: `I am ${PROFILE_NAME},`, className: 'font-normal' },
+            { text: 'We are Zima,', className: 'font-normal' },
             {
-              text: PROFILE_ROLE,
+              text: COMPANY_ROLE,
               className: 'font-serif italic font-normal',
             },
             {
-              text: 'I have skills in performance marketing, brand systems, and applied AI.',
+              text: 'We design, build and scale the digital side of your business.',
               className: 'font-normal',
             },
           ]}
